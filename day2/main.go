@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -12,53 +13,51 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	comb := 50
-	counter := 0
-	passes := 0
 
 	scanner := bufio.NewScanner(input)
 	for scanner.Scan() {
 		line := scanner.Text()
-		direction := line[:1]
-		num := line[1:]
-		comb, passes, err = calc(direction, num, comb)
-		if err != nil {
-			panic(err)
+		res := 0
+		stringArray := strings.Split(line, ",")
+		for i := 0; i < len(stringArray); i++ {
+			currStringArray := strings.Split(stringArray[i], "-")
+			start, err := strconv.Atoi(currStringArray[0])
+			end, err := strconv.Atoi(currStringArray[1])
+			if err != nil {
+				continue
+			}
+			for i := start; i <= end; i++ {
+				strI := strconv.Itoa(i)
+				if isInvalidID(strI) {
+					res += i
+				}
+			}
 		}
-		counter += passes
-
+		fmt.Println(res)
 	}
 
 	if err := scanner.Err(); err != nil {
 		panic(err)
 	}
-	fmt.Println(counter)
 }
 
-func calc(direction string, num string, comb int) (int, int, error) {
-	passes := 0
-	n, err := strconv.Atoi(num)
-	if err != nil {
-		return comb, 0, err
-	}
-	if direction == "L" {
-		for i := 1; i <= n; i++ {
-			if (comb-i+100)%100 == 0 {
-				passes += 1
-			}
-
+func isInvalidID(s string) bool {
+	n := len(s)
+	for l := 1; l <= n/2; l++ {
+		if n%l != 0 {
+			continue
 		}
-		comb -= n
-		comb = (comb + 100) % 100
-	}
-	if direction == "R" {
-		for i := 1; i <= n; i++ {
-			if (comb+i)%100 == 0 {
-				passes += 1
+		pattern := s[:l]
+		valid := true
+		for i := l; i < n; i += l {
+			if s[i:i+l] != pattern {
+				valid = false
+				break
 			}
 		}
-		comb += n
-		comb = (comb + 100) % 100
+		if valid {
+			return true
+		}
 	}
-	return comb, passes, nil
+	return false
 }
