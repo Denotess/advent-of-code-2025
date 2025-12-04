@@ -19,7 +19,16 @@ func main() {
 		curStrings := strings.Split(text, "")
 		numArray = append(numArray, curStrings)
 	}
+	res := 0
+	can, numArray, output := canBeRemoved(numArray)
+	for can {
+		res += output
+		can, numArray, output = canBeRemoved(numArray)
+	}
+	fmt.Println(res)
+}
 
+func canBeRemoved(numArray [][]string) (bool, [][]string, int) {
 	dirs := [][2]int{
 		{-1, -1},
 		{-1, 0},
@@ -43,9 +52,20 @@ func main() {
 				}
 			}
 			if numArray[i][j] == "@" && counter < 4 {
+				numArray[i][j] = "x"
 				res += 1
 			}
 		}
 	}
-	fmt.Println(res)
+	for i := 0; i < len(numArray); i++ {
+		for j := 0; j < len(numArray[i]); j++ {
+			if numArray[i][j] == "x" {
+				numArray[i][j] = "."
+			}
+		}
+	}
+	if res >= 1 {
+		return true, numArray, res
+	}
+	return false, nil, 0
 }
